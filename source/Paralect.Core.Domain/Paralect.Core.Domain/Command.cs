@@ -1,7 +1,4 @@
-using System;
-using Paralect.Core.Domain;
-
-namespace Paralect.Domain
+namespace Paralect.Core.Domain
 {
     /// <summary>
     /// Domain Command

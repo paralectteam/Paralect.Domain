@@ -1,8 +1,8 @@
 using System;
+using System.Linq;
+using Paralect.Core.Domain.EventBus;
 using Paralect.Core.Domain.Utilities;
 using Paralect.Core.Transitions;
-using Paralect.Domain;
-using Paralect.Domain.EventBus;
 
 namespace Paralect.Core.Domain
 {

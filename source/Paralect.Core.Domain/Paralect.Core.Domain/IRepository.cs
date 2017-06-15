@@ -1,5 +1,4 @@
 using System;
-using Paralect.Domain;
 
 namespace Paralect.Core.Domain
 {

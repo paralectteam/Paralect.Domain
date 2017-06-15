@@ -1,8 +1,7 @@
 using System.Collections.Generic;
-using Paralect.Core.Domain;
-using Paralect.ServiceBus;
+using Paralect.Core.ServiceBus;
 
-namespace Paralect.Domain.EventBus
+namespace Paralect.Core.Domain.EventBus
 {
     public class ParalectServiceBusEventBus : IEventBus
     {

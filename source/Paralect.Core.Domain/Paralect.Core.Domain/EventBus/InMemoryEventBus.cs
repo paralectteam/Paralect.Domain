@@ -1,7 +1,6 @@
 using System.Collections.Generic;
-using Paralect.Core.Domain;
 
-namespace Paralect.Domain.EventBus
+namespace Paralect.Core.Domain.EventBus
 {
     public class InMemoryEventBus : IEventBus
     {
