@@ -1,3 +1,4 @@
+using System;
 using MongoDB.Bson;
 using MongoDB.Driver;
 
@@ -5,46 +6,42 @@ namespace Paralect.Core.Transitions.Mongo
 {
     public class MongoTransitionServer
     {
-        /// <summary>
-        /// Name of database 
-        /// </summary>
+        private readonly MongoClient _client;
+
         private readonly string _databaseName;
 
         /// <summary>
         /// Collection for storing commits data
         /// </summary>
-        private readonly string _collectionName;
+        private const string TransaitonsCollectionName = "transitions";
+        private const string SnapshotsCollectionName = "snapshots";
 
         private readonly MongoCollectionSettings _transitionSettings;
+        private readonly MongoCollectionSettings _snapshotSettings;
 
         /// <summary>
         /// Opens connection to MongoDB Server
         /// </summary>
-        public MongoTransitionServer(string connectionString, string collectionName)
+        public MongoTransitionServer(string connectionString)
         {
-            _collectionName = collectionName;
             _databaseName = MongoUrl.Create(connectionString).DatabaseName;
-            Client = new MongoClient(connectionString);
+            _client = new MongoClient(connectionString);
 
-            _transitionSettings = new MongoCollectionSettings()
-            {
-                AssignIdOnInsert = false
-            };
+            _transitionSettings = new MongoCollectionSettings {AssignIdOnInsert = false};
+
+            _snapshotSettings = new MongoCollectionSettings {AssignIdOnInsert = false};
         }
-
-        /// <summary>
-        /// MongoDB Client
-        /// </summary>
-        public MongoClient Client { get; }
 
         /// <summary>
         /// Get database
         /// </summary>
-        public IMongoDatabase Database => Client.GetDatabase(_databaseName);
+        public IMongoDatabase Database => _client.GetDatabase(_databaseName);
 
         /// <summary>
         /// Get commits collection
         /// </summary>
-        public IMongoCollection<BsonDocument> Transitions => Database.GetCollection<BsonDocument>(_collectionName, _transitionSettings);
+        public IMongoCollection<BsonDocument> Transitions => Database.GetCollection<BsonDocument>(TransaitonsCollectionName, _transitionSettings);
+
+        public IMongoCollection<BsonDocument> Snapshots => Database.GetCollection<BsonDocument>(SnapshotsCollectionName, _snapshotSettings);
     }
 }

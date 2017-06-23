@@ -17,7 +17,7 @@ namespace Paralect.Core.Transitions.Mongo
         {
             _dataTypeRegistry = dataTypeRegistry;
             _serializer = new MongoTransitionSerializer(dataTypeRegistry);
-            _server = new MongoTransitionServer(connectionString, collectionName);
+            _server = new MongoTransitionServer(connectionString);
 
             EnsureIndexes();
         }
