@@ -1,7 +1,5 @@
 ﻿using System;
-using System.IO;
 using MongoDB.Bson;
-using MongoDB.Bson.IO;
 using MongoDB.Bson.Serialization;
 
 namespace Paralect.Core.Transitions.Mongo
@@ -15,12 +13,7 @@ namespace Paralect.Core.Transitions.Mongo
 
         public BsonDocument Serialize(object obj)
         {
-            var data = new BsonDocument();
-            var sw = new StringWriter();
-            var jw = new JsonWriter(sw);
-            BsonSerializer.Serialize(jw, data);
-
-            return data;
+            return obj.ToBsonDocument();
         }
     }
 }
