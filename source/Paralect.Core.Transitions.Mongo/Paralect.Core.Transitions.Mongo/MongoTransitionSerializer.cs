@@ -71,17 +71,17 @@ namespace Paralect.Core.Transitions.Mongo
 
         #region Metadata Serialization
 
-        private BsonValue SerializeMetadata(Dictionary<string, object> metadata)
+        private BsonValue SerializeMetadata(Dictionary<String, Object> metadata)
         {
             return BsonDocumentWrapper.Create(metadata);
         }
 
-        private Dictionary<string, object> DeserializeMetadata(BsonValue bsonValue)
+        private Dictionary<String, Object> DeserializeMetadata(BsonValue bsonValue)
         {
             if (!bsonValue.IsBsonDocument)
                 throw new Exception("Cannot deserialize metadata (it is not a BsonDocument)");
 
-            return BsonSerializer.Deserialize<Dictionary<string, object>>(bsonValue.AsBsonDocument);
+            return BsonSerializer.Deserialize<Dictionary<String, Object>>(bsonValue.AsBsonDocument);
         }
 
         #endregion
@@ -89,9 +89,9 @@ namespace Paralect.Core.Transitions.Mongo
 
         #region Transition Events Serialization
 
-        private BsonArray SerializeTransitionEvents(IEnumerable<TransitionEvent> events)
+        private BsonArray SerializeTransitionEvents(List<TransitionEvent> events)
         {
-            var array = new BsonArray();
+            BsonArray array = new BsonArray();
 
             foreach (var e in events)
             {

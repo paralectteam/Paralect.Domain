@@ -27,9 +27,9 @@ namespace Paralect.Core.Transitions.Mongo
             _databaseName = MongoUrl.Create(connectionString).DatabaseName;
             _client = new MongoClient(connectionString);
 
-            _transitionSettings = new MongoCollectionSettings {AssignIdOnInsert = false};
+            _transitionSettings = new MongoCollectionSettings { AssignIdOnInsert = false };
 
-            _snapshotSettings = new MongoCollectionSettings {AssignIdOnInsert = false};
+            _snapshotSettings = new MongoCollectionSettings { AssignIdOnInsert = false };
         }
 
         /// <summary>

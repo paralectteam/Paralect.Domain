@@ -1,6 +1,7 @@
 ﻿using MongoDB.Bson;
 using MongoDB.Driver;
 using Newtonsoft.Json;
+using Paralect.Core.Transitions;
 
 namespace Paralect.Core.Transitions.Mongo
 {
@@ -16,7 +17,7 @@ namespace Paralect.Core.Transitions.Mongo
         public void Save(Snapshot snapShot, int minTransitionsForSnapshot = 30)
         {
             //Create snapshot for each # events or if snapshot not exists and # of events > then specified min
-            if (snapShot.StreamVersion % minTransitionsForSnapshot == 0 || 
+            if (snapShot.StreamVersion % minTransitionsForSnapshot == 0 ||
                 (snapShot.StreamVersion > minTransitionsForSnapshot && IsSnapshotNotExists(snapShot.StreamId)))
             {
                 var result = new BsonDocument
@@ -33,9 +34,9 @@ namespace Paralect.Core.Transitions.Mongo
         private bool IsSnapshotNotExists(string streamId)
         {
             return _transitionServer.Snapshots.Find(Builders<BsonDocument>.Filter.Eq("_id.StreamId", streamId))
-                    .Limit(1)
-                    .Project(Builders<BsonDocument>.Projection.Include("_id"))
-                    .FirstOrDefault() == null;
+                       .Limit(1)
+                       .Project(Builders<BsonDocument>.Projection.Include("_id"))
+                       .FirstOrDefault() == null;
         }
 
         public Snapshot Load<T>(string id)

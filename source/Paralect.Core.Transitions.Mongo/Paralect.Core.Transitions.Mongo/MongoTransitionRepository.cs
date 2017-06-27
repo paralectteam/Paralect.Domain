@@ -10,21 +10,21 @@ namespace Paralect.Core.Transitions.Mongo
     {
         private const string ConcurrencyException = "E1100";
         private readonly IDataTypeRegistry _dataTypeRegistry;
-        private readonly MongoTransitionServer _server;
+        private readonly MongoTransitionServer _transitionServer;
         private readonly MongoTransitionSerializer _serializer;
 
-        public MongoTransitionRepository(IDataTypeRegistry dataTypeRegistry, string connectionString, string collectionName = "transitions")
+        public MongoTransitionRepository(IDataTypeRegistry dataTypeRegistry, string connectionString)
         {
             _dataTypeRegistry = dataTypeRegistry;
             _serializer = new MongoTransitionSerializer(dataTypeRegistry);
-            _server = new MongoTransitionServer(connectionString);
+            _transitionServer = new MongoTransitionServer(connectionString);
 
             EnsureIndexes();
         }
 
         private Dictionary<BsonDocument, IndexKeysDefinition<BsonDocument>> RequiredIndexes()
         {
-            return new Dictionary<BsonDocument, IndexKeysDefinition<BsonDocument>>()
+            return new Dictionary<BsonDocument, IndexKeysDefinition<BsonDocument>>
             {
                 {new BsonDocument("_id.StreamId", 1), Builders<BsonDocument>.IndexKeys.Ascending("_id.StreamId")},
                 {new BsonDocument("_id.Version", 1), Builders<BsonDocument>.IndexKeys.Ascending("_id.Version")},
@@ -33,8 +33,7 @@ namespace Paralect.Core.Transitions.Mongo
                     new BsonDocument
                     {
                         new BsonElement("Timestamp", 1),
-                        new BsonElement("_id.Version", 1),
-                         
+                        new BsonElement("_id.Version", 1)
                     },
                     Builders<BsonDocument>.IndexKeys.Ascending("Timestamp").Ascending("_id.Version")
                 }
@@ -43,16 +42,18 @@ namespace Paralect.Core.Transitions.Mongo
 
         public void EnsureIndexes()
         {
-            var indexes = _server.Transitions.Indexes
+            var indexes = _transitionServer.Transitions.Indexes
                 .List()
                 .ToList()
                 .Select(x => x["key"] as BsonDocument).ToList();
 
             foreach (var index in RequiredIndexes())
-            {
                 if (!indexes.Contains(index.Key))
-                    _server.Transitions.Indexes.CreateOneAsync(index.Value).GetAwaiter().GetResult();
-            }
+                    _transitionServer.Transitions.Indexes.CreateOneAsync(index.Value).GetAwaiter().GetResult();
+
+            _transitionServer.Snapshots.Indexes.CreateOne(Builders<BsonDocument>.IndexKeys.Ascending("_id.StreamId")
+                .Descending("_id.Version"));
+            _transitionServer.Snapshots.Indexes.CreateOne(Builders<BsonDocument>.IndexKeys.Ascending("_id.StreamId"));
         }
 
         public void SaveTransition(Transition transition)
@@ -65,7 +66,7 @@ namespace Paralect.Core.Transitions.Mongo
 
             try
             {
-                _server.Transitions.InsertOneAsync(doc);
+                _transitionServer.Transitions.InsertOneAsync(doc);
             }
             catch (MongoException e)
             {
@@ -78,13 +79,12 @@ namespace Paralect.Core.Transitions.Mongo
 
         public List<Transition> GetTransitions(string streamId, int fromVersion, int toVersion)
         {
-
             var builder = Builders<BsonDocument>.Filter;
             var filter = builder.Eq("_id.StreamId", streamId) &
                          builder.Gte("_id.Version", fromVersion) &
                          builder.Lte("_id.Version", toVersion);
 
-            var docs = _server.Transitions.Find(filter)
+            var docs = _transitionServer.Transitions.Find(filter)
                 .Sort(Builders<BsonDocument>.Sort.Ascending("_id.Version"))
                 .ToListAsync()
                 .GetAwaiter()
@@ -99,18 +99,33 @@ namespace Paralect.Core.Transitions.Mongo
             return transitions;
         }
 
+        public List<Transition> GetTransitions(int startIndex, int count)
+        {
+            var docs = _transitionServer.Transitions.Find(new BsonDocument())
+                .Skip(startIndex)
+                .Limit(count)
+                .Sort(Builders<BsonDocument>.Sort.Ascending("Timestamp").Ascending("_id.Version"))
+                .ToList();
+
+            var transitions = docs.Select(_serializer.Deserialize).ToList();
+
+            return transitions;
+        }
+
+        public long CountTransitions()
+        {
+            return _transitionServer.Transitions.Count(new BsonDocument());
+        }
+
         /// <summary>
-        /// Get all transitions ordered ascendantly by Timestamp of transiton
-        /// Should be used only for testing and for very simple event replying 
+        ///     Get all transitions ordered ascendantly by Timestamp of transiton
+        ///     Should be used only for testing and for very simple event replying
         /// </summary>
         public List<Transition> GetTransitions()
         {
-            var docs = _server.Transitions.Find(new BsonDocument())
-                .Sort(Builders<BsonDocument>.Sort.Ascending("Timestamp"))
-                .Sort(Builders<BsonDocument>.Sort.Ascending("_id.Version"))
-                .ToListAsync()
-                .GetAwaiter()
-                .GetResult();
+            var docs = _transitionServer.Transitions.Find(new BsonDocument())
+                .Sort(Builders<BsonDocument>.Sort.Ascending("Timestamp").Ascending("_id.Version"))
+                .ToList();
 
             var transitions = docs.Select(_serializer.Deserialize).ToList();
 
@@ -120,15 +135,15 @@ namespace Paralect.Core.Transitions.Mongo
         public void RemoveTransition(string streamId, int version)
         {
             var id = _serializer.SerializeTransitionId(new TransitionId(streamId, version));
-            var filter = Builders<BsonDocument>.Filter.Eq("_id", id);
+            var query = new BsonDocument {{"_id", id}};
 
-            _server.Transitions.DeleteOneAsync(filter).GetAwaiter().GetResult();
+            _transitionServer.Transitions.DeleteOne(query);
         }
 
         public void RemoveStream(string streamId)
         {
-            var filter = Builders<BsonDocument>.Filter.Eq("_id.StreamId", streamId);
-            _server.Transitions.DeleteOneAsync(filter).GetAwaiter().GetResult();
+            var query = new BsonDocument {{"_id.StreamId", streamId}};
+            _transitionServer.Transitions.DeleteOne(query);
         }
     }
 }
