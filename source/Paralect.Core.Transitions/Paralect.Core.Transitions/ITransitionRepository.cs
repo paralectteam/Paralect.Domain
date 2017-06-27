@@ -7,10 +7,12 @@ namespace Paralect.Core.Transitions
     {
         void SaveTransition(Transition transition);
         List<Transition> GetTransitions(string streamId, int fromVersion, int toVersion);
+        List<Transition> GetTransitions(int startIndex, int count);
+        long CountTransitions();
 
         /// <summary>
-        /// Get all transitions ordered ascendantly by Timestamp of transiton
-        /// Should be used only for testing and for very simple event replying 
+        ///     Get all transitions ordered ascendantly by Timestamp of transiton
+        ///     Should be used only for testing and for very simple event replying
         /// </summary>
         List<Transition> GetTransitions();
 
@@ -18,7 +20,7 @@ namespace Paralect.Core.Transitions
         void RemoveStream(string streamId);
 
         /// <summary>
-        /// Build indexes for transitions
+        ///     Build indexes for transitions
         /// </summary>
         void EnsureIndexes();
     }

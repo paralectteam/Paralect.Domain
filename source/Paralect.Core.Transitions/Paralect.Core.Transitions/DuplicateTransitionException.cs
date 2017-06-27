@@ -9,7 +9,7 @@ namespace Paralect.Core.Transitions
         public string StreamId { get; set; }
 
         public DuplicateTransitionException(string streamId, int version, Exception innerException)
-            : base($"Transition ({streamId}, {version}) already exists.", innerException)
+            : base(string.Format("Transition ({0}, {1}) already exists.", streamId, version), innerException)
         {
             VersionId = version;
             StreamId = streamId;

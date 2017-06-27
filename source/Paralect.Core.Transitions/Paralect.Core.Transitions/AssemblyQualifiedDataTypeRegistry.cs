@@ -2,9 +2,6 @@
 
 namespace Paralect.Core.Transitions
 {
-    /// <summary>
-    /// TODO: Add caching
-    /// </summary>
     public class AssemblyQualifiedDataTypeRegistry : IDataTypeRegistry
     {
         public Type GetType(string typeId)

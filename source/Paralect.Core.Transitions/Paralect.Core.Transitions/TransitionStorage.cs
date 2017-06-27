@@ -7,7 +7,7 @@ namespace Paralect.Core.Transitions
         private readonly ITransitionRepository _transitionRepository;
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        ///     Initializes a new instance of the <see cref="T:System.Object" /> class.
         /// </summary>
         public TransitionStorage(ITransitionRepository transitionRepository)
         {

@@ -11,30 +11,31 @@ namespace Paralect.Core.Transitions
     public class Transition
     {
         /// <summary>
-        /// Transition ID (StreamId, Version)
+        ///     Transition ID (StreamId, Version)
         /// </summary>
-        public TransitionId Id { get; private set; }
+        public TransitionId Id { get; }
 
         /// <summary>
-        /// DateTime when transition was saved to the Store
-        /// (or more accurately - current datetime that was set to Transition _before_ storing it to the Store)
+        ///     DateTime when transition was saved to the Store
+        ///     (or more accurately - current datetime that was set to Transition _before_ storing it to the Store)
         /// </summary>
         public DateTime Timestamp { get; set; }
 
         /// <summary>
-        /// Events in commit
+        ///     Events in commit
         /// </summary>
-        public List<TransitionEvent> Events { get; private set; }
+        public List<TransitionEvent> Events { get; }
 
         /// <summary>
-        /// Metadata of commit
+        ///     Metadata of commit
         /// </summary>
-        public Dictionary<string, object> Metadata { get; private set; }
+        public Dictionary<string, object> Metadata { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        ///     Initializes a new instance of the <see cref="T:System.Object" /> class.
         /// </summary>
-        public Transition(TransitionId transitionId, DateTime timestamp, List<TransitionEvent> events, Dictionary<string, object> metadata)
+        public Transition(TransitionId transitionId, DateTime timestamp, List<TransitionEvent> events,
+            Dictionary<string, object> metadata)
         {
             Id = transitionId;
             Events = events;

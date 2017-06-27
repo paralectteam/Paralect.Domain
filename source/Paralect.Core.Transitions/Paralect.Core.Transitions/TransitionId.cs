@@ -5,17 +5,17 @@ namespace Paralect.Core.Transitions
     public class TransitionId
     {
         /// <summary>
-        /// Unique stream id (usually means aggregate id)
+        ///     Unique stream id (usually means aggregate id)
         /// </summary>
-        public string StreamId { get; private set; }
+        public string StreamId { get; }
 
         /// <summary>
-        /// Version of commit (sequence number) 
+        ///     Version of commit (sequence number)
         /// </summary>
-        public int Version { get; private set; }
+        public int Version { get; }
 
         /// <summary>
-        /// Initializes a new instance of the <see cref="T:System.Object"/> class.
+        ///     Initializes a new instance of the <see cref="T:System.Object" /> class.
         /// </summary>
         public TransitionId(string streamId, int version)
         {

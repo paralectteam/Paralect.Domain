@@ -10,12 +10,13 @@ namespace Paralect.Core.Transitions
         private readonly int _toVersion;
         private int _latestVersion;
         private readonly ITransitionRepository _transitionRepository;
-        private bool _readStarted = false;
+        private bool _readStarted;
 
         private List<Transition> _transitions;
         private IEnumerator<Transition> _enumerator;
 
-        public TransitionStream(string streamId, ITransitionRepository transitionRepository, int fromVersion, int toVersion)
+        public TransitionStream(string streamId, ITransitionRepository transitionRepository, int fromVersion,
+            int toVersion)
         {
             _streamId = streamId;
             _transitionRepository = transitionRepository;
@@ -38,7 +39,8 @@ namespace Paralect.Core.Transitions
             foreach (var transition in _transitions)
             {
                 if (current != null && current.Id.Version >= transition.Id.Version)
-                    throw new IncorrectOrderOfTransitionsException("Order of Aggreagate Root transitions should be ascending by Version (1, 2, 10, ..., 15)");
+                    throw new IncorrectOrderOfTransitionsException(
+                        "Order of Aggreagate Root transitions should be ascending by Version (1, 2, 10, ..., 15)");
 
                 current = transition;
                 yield return current;
@@ -48,7 +50,8 @@ namespace Paralect.Core.Transitions
         public void Write(Transition transition)
         {
             if (_readStarted)
-                throw new InvalidOperationException("You cannot write to stream once you read from it. Open another stream.");
+                throw new InvalidOperationException(
+                    "You cannot write to stream once you read from it. Open another stream.");
 
             try
             {
@@ -57,9 +60,7 @@ namespace Paralect.Core.Transitions
             catch (DuplicateTransitionException e)
             {
                 if (e.VersionId > 1)
-                {
                     throw new ConcurrencyException("Transition with same Version was saved before.");
-                }
 
                 throw;
             }
@@ -67,7 +68,6 @@ namespace Paralect.Core.Transitions
 
         public void Dispose()
         {
-
         }
     }
 }
